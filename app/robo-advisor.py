@@ -31,14 +31,21 @@ response = requests.get(request_url)
 
 
 parsed_response=json.loads(response.text)
-print(type(parsed_response)) # > <class 'dict'>
+#print(type(parsed_response)) # > <class 'dict'>
+#print(parsed_response.keys()) # > dict_keys(['Meta Data', 'Time Series (Daily)'])
 
+#print(parsed_response['Meta Data'])
+#{'1. Information': 'Daily Prices (open, high, low, close) and Volumes', '2. Symbol': 'IBM',
+# '3. Last Refreshed': '2020-06-12', '4. Output Size': 'Compact', '5. Time Zone': 'US/Eastern'}
 
-breakpoint()
+#print(parsed_response['Meta Data'].keys())
+#dict_keys(['1. Information', '2. Symbol', '3. Last Refreshed',
+#           '4. Output Size', '5. Time Zone'])
 
-quit()
+#print(parsed_response['Meta Data']['3. Last Refreshed'])
+#'2020-06-12'
 
-
+last_refreshed = parsed_response['Meta Data']['3. Last Refreshed']
 
 
 
@@ -49,7 +56,7 @@ print("-------------------------")
 print("REQUESTING STOCK MARKET DATA...")
 print("REQUEST AT: 2018-02-20 02:00pm")
 print("-------------------------")
-print("LATEST DAY: 2018-02-20")
+print(f"LATEST DAY: {last_refreshed}")
 print("LATEST CLOSE: $100,000.00")
 print("RECENT HIGH: $101,000.00")
 print("RECENT LOW: $99,000.00")
