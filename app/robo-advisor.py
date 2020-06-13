@@ -83,11 +83,12 @@ print(parsed_response['Time Series (Daily)']['2020-06-12'])
 print(parsed_response['Time Series (Daily)']['2020-06-12'].keys())
 #dict_keys(['1. open', '2. high', '3. low', '4. close', '5. volume'])
 
-# Get list of time series days
+# Get list of time series days #TODO: maybe write some code that's flexible to handle unsorted data from API
 close_days = list(parsed_response['Time Series (Daily)'].keys())
 last_close_day = close_days[0]
 px_last = parsed_response['Time Series (Daily)'][last_close_day]['4. close']
 print(px_last)
+print(type(px_last))
 
 
 # PRINT INFORMATION ---------------------------------------------------------------------
@@ -99,7 +100,7 @@ print("REQUESTING STOCK MARKET DATA...")
 print("REQUEST AT: 2018-02-20 02:00pm") #TODO: use datetime module to get date and time of request
 print("-------------------------")
 print(f"LATEST DAY: {last_refreshed}")
-print(f"LATEST CLOSE: ${px_last}")
+print(f"LATEST CLOSE: {to_usd(float(px_last))}")
 print("RECENT HIGH: $101,000.00")
 print("RECENT LOW: $99,000.00")
 print("-------------------------")
