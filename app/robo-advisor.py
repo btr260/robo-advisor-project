@@ -4,6 +4,7 @@
 import requests
 import dotenv
 import json
+import datetime
 
 
 # FUNCTIONS ----------------------------------------------------------------------
@@ -69,6 +70,10 @@ parsed_response=json.loads(response.text)
 #'2020-06-12'
 
 last_refreshed = parsed_response['Meta Data']['3. Last Refreshed']
+symbol = parsed_response['Meta Data']['2. Symbol']
+dt_exec = datetime.datetime.now()
+print(dt_exec)  # > 2020-06-13 15:38:02.986058
+print(type(dt_exec))  # > <class 'datetime.datetime'>
 
 #print(parsed_response['Time Series (Daily)'])
 #print(parsed_response['Time Series (Daily)'].keys())
@@ -76,28 +81,28 @@ last_refreshed = parsed_response['Meta Data']['3. Last Refreshed']
 # '2020-06-04', '2020-06-03', '2020-06-02', '2020-06-01', '2020-05-29', '2020-05-28', '2020-05-27',
 #  '2020-05-26', '2020-05-22', '2020-05-21', '2020-05-20', '2020-05-19', '2020-05-18', ...
 
-print(parsed_response['Time Series (Daily)']['2020-06-12'])
+#print(parsed_response['Time Series (Daily)']['2020-06-12'])
 #{'1. open': '121.2500', '2. high': '123.1200', '3. low': '119.2800', '4. close': '121.9100',
 #  '5. volume': '6218003'}
 
-print(parsed_response['Time Series (Daily)']['2020-06-12'].keys())
+#print(parsed_response['Time Series (Daily)']['2020-06-12'].keys())
 #dict_keys(['1. open', '2. high', '3. low', '4. close', '5. volume'])
 
-# Get list of time series days #TODO: maybe write some code that's flexible to handle unsorted data from API
+# Get list of time series days #TODO: currently assumes data is sorted.  consider sorting to ensure
 close_days = list(parsed_response['Time Series (Daily)'].keys())
-last_close_day = close_days[0]
-px_last = parsed_response['Time Series (Daily)'][last_close_day]['4. close']
-print(px_last)
-print(type(px_last))
+latest_day = close_days[0]
+px_last = parsed_response['Time Series (Daily)'][latest_day]['4. close']
+#print(px_last)
+#print(type(px_last)) # > <class 'str'>
 
 
 # PRINT INFORMATION ---------------------------------------------------------------------
 
 print("-------------------------")
-print("SELECTED SYMBOL: XYZ")
+print(f"SELECTED SYMBOL: {symbol}")
 print("-------------------------")
 print("REQUESTING STOCK MARKET DATA...")
-print("REQUEST AT: 2018-02-20 02:00pm") #TODO: use datetime module to get date and time of request
+print(f"REQUEST AT: {dt_exec.strftime('%Y-%m-%d %I:%M%p').lower()}")
 print("-------------------------")
 print(f"LATEST DAY: {last_refreshed}")
 print(f"LATEST CLOSE: {to_usd(float(px_last))}")
