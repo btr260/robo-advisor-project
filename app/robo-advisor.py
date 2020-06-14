@@ -10,6 +10,12 @@ import os
 from dotenv import load_dotenv
 
 
+
+# LOAD .ENV ----------------------------------------------------------------------
+load_dotenv()
+api_key = os.environ.get('ALPHAVANTAGE_API_KEY')
+#print(os.environ.get('ALPHAVANTAGE_API_KEY'))
+
 # FUNCTIONS ----------------------------------------------------------------------
 
 def to_usd(my_price):
@@ -36,20 +42,16 @@ def date_suffix(dt_for_suf):
 
 # REQUEST API DATA ----------------------------------------------------------------
 
-load_dotenv()
-#print(os.environ.get('ALPHAVANTAGE_API_KEY'))
+input_ticker = 'BUFUuuuu'  #TODO: take user input(s)
 
-input_ticker = 'IBM' #TODO: take user input(s)
-
-api_key = os.environ.get('ALPHAVANTAGE_API_KEY')
-
+#TODO: Take user risk tolerance - how to translate risk tolerance into advice?
 
 request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={input_ticker}&apikey={api_key}"
 response = requests.get(request_url)
-#print(type(response))  # > <class 'requests.models.Response'>
-#print(response.status_code) # > 200
+print(type(response))  # > <class 'requests.models.Response'>
+print(response.status_code) # > 200
 #print(type(response.text)) # > <class 'str'>
-#print(response.text) # > STRING variable (shown below).  Need to parse into process into dictionary using json module.
+print(response.text) # > STRING variable (shown below).  Need to parse into process into dictionary using json module.
 
 #{
 #"Meta Data": {
@@ -131,10 +133,10 @@ high_px = []
 for d in close_days[0:highlow_pd]:
     high_px.append(float(parsed_response['Time Series (Daily)'][d]['2. high']))
 
-print(high_px)
-print(len(high_px))
+#print(high_px)
+#print(len(high_px))
 recent_high = max(high_px)
-print(recent_high)
+#print(recent_high)
 
 
 # PULL RECENT LOW: min of lows over last 100 days
@@ -144,16 +146,16 @@ low_px = []
 for d in close_days[0:highlow_pd]:
     low_px.append(float(parsed_response['Time Series (Daily)'][d]['3. low']))
 
-print(low_px)
-print(len(low_px))
+#print(low_px)
+#print(len(low_px))
 recent_low = min(low_px)
-print(recent_low)
+#print(recent_low)
 
 
 # WRITE CSV DATA ------------------------------------------------------------------------
 
 headers = ['timestamp', 'open', 'high', 'low', 'close', 'volume'] #list(parsed_response['Time Series(Daily)'][latest_day].keys())
-print(headers)
+#print(headers)
 
 csv_filepath = os.path.join(os.path.dirname(os.path.abspath(
     __file__)), '..', 'data', f"{symbol}.csv")  # a relative filepath
