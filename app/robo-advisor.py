@@ -64,7 +64,7 @@ parsed_response=json.loads(response.text)
 #print(parsed_response.keys()) # > dict_keys(['Meta Data', 'Time Series (Daily)'])
 
 
-# PULL INFORMATION FROM DATA -----------------------------------------------------------
+# PULL LAST REFRESH FROM DATA -----------------------------------------------------------
 
 #print(parsed_response['Meta Data'])
 #{'1. Information': 'Daily Prices (open, high, low, close) and Volumes', '2. Symbol': 'IBM',
@@ -81,6 +81,9 @@ last_refreshed = parsed_response['Meta Data']['3. Last Refreshed']
 last_ref_dt = datetime.datetime.fromisoformat(last_refreshed)
 #print(last_ref_dt) # > 2020-06-12 00:00:00
 #print(type(last_ref_dt)) # > <class 'datetime.datetime'>
+
+
+# PULL SYMBOL FROM DATA ------------------------------------------------------------------
 
 symbol = parsed_response['Meta Data']['2. Symbol']
 dt_exec = datetime.datetime.now()
@@ -100,6 +103,8 @@ dt_exec = datetime.datetime.now()
 #print(parsed_response['Time Series (Daily)']['2020-06-12'].keys())
 #dict_keys(['1. open', '2. high', '3. low', '4. close', '5. volume'])
 
+# PULL LATEST CLOSE FROM DATA ------------------------------------------------------------
+
 # Get list of time series days #TODO: currently assumes data is sorted.  consider sorting to ensure
 close_days = list(parsed_response['Time Series (Daily)'].keys())
 latest_day = close_days[0]
@@ -107,6 +112,31 @@ px_last = parsed_response['Time Series (Daily)'][latest_day]['4. close']
 #print(px_last)
 #print(type(px_last)) # > <class 'str'>
 
+# PULL RECENT HIGH: max of highs over last 100 days
+highlow_pd = 100
+
+high_px = []
+
+for d in close_days[0:highlow_pd]:
+    high_px.append(float(parsed_response['Time Series (Daily)'][d]['2. high']))
+
+print(high_px)
+print(len(high_px))
+recent_high = max(high_px)
+print(recent_high)
+
+
+# PULL RECENT LOW: min of lows over last 100 days
+
+low_px = []
+
+for d in close_days[0:highlow_pd]:
+    low_px.append(float(parsed_response['Time Series (Daily)'][d]['3. low']))
+
+print(low_px)
+print(len(low_px))
+recent_low = min(low_px)
+print(recent_low)
 
 # PRINT INFORMATION ---------------------------------------------------------------------
 
@@ -118,8 +148,8 @@ print(f"REQUEST AT: {dt_exec.strftime('%#I:%M%p').lower()} on {dt_exec.strftime(
 print("-------------------------")
 print(f"LATEST DAY: {last_ref_dt.strftime('%A, %B %#d')}{date_suffix(last_ref_dt)}, {last_ref_dt.strftime('%Y')}")
 print(f"LATEST CLOSE: {to_usd(float(px_last))}")
-print("RECENT HIGH: $101,000.00")
-print("RECENT LOW: $99,000.00")
+print(f"RECENT HIGH: {to_usd(recent_high)}")
+print(f"RECENT LOW: {to_usd(recent_low)}")
 print("-------------------------")
 print("RECOMMENDATION: BUY!")
 print("RECOMMENDATION REASON: TODO")
