@@ -143,16 +143,25 @@ print(recent_low)
 
 # WRITE CSV DATA ------------------------------------------------------------------------
 
-csv_filepath = os.path.join(os.path.dirname(os.path.abspath(
-    __file__)), "..", "data", "prices.csv")  # a relative filepath
+headers = ['timestamp', 'open', 'high', 'low', 'close', 'volume'] #list(parsed_response['Time Series(Daily)'][latest_day].keys())
+print(headers)
 
-with open(csv_filepath, "w") as csv_file:  # "w" means "open the file for writing"
-    writer = csv.DictWriter(csv_file, fieldnames=["city", "name"])
+csv_filepath = os.path.join(os.path.dirname(os.path.abspath(
+    __file__)), '..', 'data', 'prices.csv')  # a relative filepath
+
+with open(csv_filepath,'w') as csv_file:  # "w" means "open the file for writing"
+    writer = csv.DictWriter(csv_file, fieldnames=headers)
     writer.writeheader()  # uses fieldnames set above
-    writer.writerow({"city": "New York", "name": "Yankees"})
-    writer.writerow({"city": "New York", "name": "Mets"})
-    writer.writerow({"city": "Boston", "name": "Red Sox"})
-    writer.writerow({"city": "New Haven", "name": "Ravens"})
+
+    for k in close_days:
+        writer.writerow({
+            'timestamp': k,
+            'open': parsed_response['Time Series (Daily)'][k]['1. open'],
+            'high': parsed_response['Time Series (Daily)'][k]['2. high'],
+            'low': parsed_response['Time Series (Daily)'][k]['3. low'],
+            'close': parsed_response['Time Series (Daily)'][k]['4. close'],
+            'volume': parsed_response['Time Series (Daily)'][k]['5. volume']
+            })
 
 
 
