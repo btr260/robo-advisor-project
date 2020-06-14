@@ -42,12 +42,27 @@ def date_suffix(dt_for_suf):
 
 # REQUEST API DATA ----------------------------------------------------------------
 
-input_ticker=['MSFT','IBM']
+#input_ticker = ['MSFT', 'IBM']
+raw_input_tickers=['MSFT',' IB M','BARD RICCIARDI']
+input_ticker = [str(t).replace(" ", "") for t in raw_input_tickers]
+spchk = [str(t).find(" ") for t in raw_input_tickers]
+#print(spchk)
 
+#TODO: write validation code for input list
+failed_tickers=[]
 #TODO: take user inputs
 #TODO: check user inputs for formatting >> this doesn't seem to matter (unless you don't enter anything)
 #TODO: since formatting may not matter, see if you can return only those list items for which there
 # were errors in pulling data. Prompt user to enter more tickers or continue.
+
+dt_exec = datetime.datetime.now()
+#print(dt_exec)  # > 2020-06-13 15:38:02.986058
+#print(type(dt_exec))  # > <class 'datetime.datetime'>
+
+
+print("-------------------------")
+print("REQUESTING STOCK MARKET DATA...")
+print(f"REQUEST AT: {dt_exec.strftime('%#I:%M%p').lower()} on {dt_exec.strftime('%A, %B %#d')}{date_suffix(dt_exec)}, {dt_exec.strftime('%Y')}")
 
 
 #TODO: Take user risk tolerance - how to translate risk tolerance into advice?
@@ -80,151 +95,177 @@ for tkr in input_ticker:
 
     # PARSE API DATA -----------------------------------------------------------------------
 
-    parsed_response=json.loads(response.text)
+    parsed_response = json.loads(response.text)
     #print(type(parsed_response)) # > <class 'dict'>
     #print(parsed_response.keys()) # > dict_keys(['Meta Data', 'Time Series (Daily)'])
 
 
-    # PULL LAST REFRESH FROM DATA -----------------------------------------------------------
+    error_check_list = list(parsed_response.keys())
+    error_check = error_check_list[0]
 
-    #print(parsed_response['Meta Data'])
-    #{'1. Information': 'Daily Prices (open, high, low, close) and Volumes', '2. Symbol': 'IBM',
-    # '3. Last Refreshed': '2020-06-12', '4. Output Size': 'Compact', '5. Time Zone': 'US/Eastern'}
-
-    #print(parsed_response['Meta Data'].keys())
-    #dict_keys(['1. Information', '2. Symbol', '3. Last Refreshed',
-    #           '4. Output Size', '5. Time Zone'])
-
-    #print(parsed_response['Meta Data']['3. Last Refreshed'])
-    #'2020-06-12'
-
-    last_refreshed = parsed_response['Meta Data']['3. Last Refreshed']
-    last_ref_dt = datetime.datetime.fromisoformat(last_refreshed)
-    #print(last_ref_dt) # > 2020-06-12 00:00:00
-    #print(type(last_ref_dt)) # > <class 'datetime.datetime'>
+    if error_check=='Meta Data':
 
 
-    # PULL SYMBOL FROM DATA ------------------------------------------------------------------
+        # PULL LAST REFRESH FROM DATA -----------------------------------------------------------
 
-    symbol = parsed_response['Meta Data']['2. Symbol']
-    dt_exec = datetime.datetime.now()
-    #print(dt_exec)  # > 2020-06-13 15:38:02.986058
-    #print(type(dt_exec))  # > <class 'datetime.datetime'>
+        #print(parsed_response['Meta Data'])
+        #{'1. Information': 'Daily Prices (open, high, low, close) and Volumes', '2. Symbol': 'IBM',
+        # '3. Last Refreshed': '2020-06-12', '4. Output Size': 'Compact', '5. Time Zone': 'US/Eastern'}
 
-    #print(parsed_response['Time Series (Daily)'])
-    #print(parsed_response['Time Series (Daily)'].keys())
-    #dict_keys(['2020-06-12', '2020-06-11', '2020-06-10', '2020-06-09', '2020-06-08', '2020-06-05',
-    # '2020-06-04', '2020-06-03', '2020-06-02', '2020-06-01', '2020-05-29', '2020-05-28', '2020-05-27',
-    #  '2020-05-26', '2020-05-22', '2020-05-21', '2020-05-20', '2020-05-19', '2020-05-18', ...
+        #print(parsed_response['Meta Data'].keys())
+        #dict_keys(['1. Information', '2. Symbol', '3. Last Refreshed',
+        #           '4. Output Size', '5. Time Zone'])
 
-    #print(parsed_response['Time Series (Daily)']['2020-06-12'])
-    #{'1. open': '121.2500', '2. high': '123.1200', '3. low': '119.2800', '4. close': '121.9100',
-    #  '5. volume': '6218003'}
+        #print(parsed_response['Meta Data']['3. Last Refreshed'])
+        #'2020-06-12'
 
-    #print(parsed_response['Time Series (Daily)']['2020-06-12'].keys())
-    #dict_keys(['1. open', '2. high', '3. low', '4. close', '5. volume'])
-
-    # PULL LATEST CLOSE FROM DATA ------------------------------------------------------------
-
-    # Get list of time series days #TODO: currently assumes data is sorted.  consider sorting to ensure
-    close_days = list(parsed_response['Time Series (Daily)'].keys())
-    latest_day = close_days[0]
-    px_last = parsed_response['Time Series (Daily)'][latest_day]['4. close']
-    #print(px_last)
-    #print(type(px_last)) # > <class 'str'>
-
-    # PULL RECENT HIGH: max of highs over last 100 days
-    # TODO: 52-week periods: For example, if the last available day of trading data is June 1st, 2018
-    # , the program should find the maximum of all the "high" prices between around June 1st, 2017
-    # and June 1st, 2018.
-    highlow_pd = 100
+        last_refreshed = parsed_response['Meta Data']['3. Last Refreshed']
+        last_ref_dt = datetime.datetime.fromisoformat(last_refreshed)
+        #print(last_ref_dt) # > 2020-06-12 00:00:00
+        #print(type(last_ref_dt)) # > <class 'datetime.datetime'>
 
 
-    high_px = []
+        # PULL SYMBOL FROM DATA ------------------------------------------------------------------
 
-    for d in close_days[0:highlow_pd]:
-        high_px.append(float(parsed_response['Time Series (Daily)'][d]['2. high']))
+        symbol = parsed_response['Meta Data']['2. Symbol']
 
-    #print(high_px)
-    #print(len(high_px))
-    recent_high = max(high_px)
-    #print(recent_high)
+        #print(parsed_response['Time Series (Daily)'])
+        #print(parsed_response['Time Series (Daily)'].keys())
+        #dict_keys(['2020-06-12', '2020-06-11', '2020-06-10', '2020-06-09', '2020-06-08', '2020-06-05',
+        # '2020-06-04', '2020-06-03', '2020-06-02', '2020-06-01', '2020-05-29', '2020-05-28', '2020-05-27',
+        #  '2020-05-26', '2020-05-22', '2020-05-21', '2020-05-20', '2020-05-19', '2020-05-18', ...
 
+        #print(parsed_response['Time Series (Daily)']['2020-06-12'])
+        #{'1. open': '121.2500', '2. high': '123.1200', '3. low': '119.2800', '4. close': '121.9100',
+        #  '5. volume': '6218003'}
 
-    # PULL RECENT LOW: min of lows over last 100 days
+        #print(parsed_response['Time Series (Daily)']['2020-06-12'].keys())
+        #dict_keys(['1. open', '2. high', '3. low', '4. close', '5. volume'])
 
-    low_px = []
+        # PULL LATEST CLOSE FROM DATA ------------------------------------------------------------
 
-    for d in close_days[0:highlow_pd]:
-        low_px.append(float(parsed_response['Time Series (Daily)'][d]['3. low']))
+        # Get list of time series days #TODO: currently assumes data is sorted.  consider sorting to ensure
+        close_days = list(parsed_response['Time Series (Daily)'].keys())
+        latest_day = close_days[0]
+        px_last = parsed_response['Time Series (Daily)'][latest_day]['4. close']
+        #print(px_last)
+        #print(type(px_last)) # > <class 'str'>
 
-    #print(low_px)
-    #print(len(low_px))
-    recent_low = min(low_px)
-    #print(recent_low)
-
-
-    # WRITE CSV DATA ------------------------------------------------------------------------
-
-    headers = ['timestamp', 'open', 'high', 'low', 'close', 'volume'] #list(parsed_response['Time Series(Daily)'][latest_day].keys())
-    #print(headers)
-
-    csv_filepath = os.path.join(os.path.dirname(os.path.abspath(
-        __file__)), '..', 'data', f"{symbol}.csv")  # a relative filepath
-
-    with open(csv_filepath,'w') as csv_file:  # "w" means "open the file for writing"
-        writer = csv.DictWriter(csv_file, fieldnames=headers)
-        writer.writeheader()  # uses fieldnames set above
-
-        for k in close_days:
-            writer.writerow({
-                'timestamp': k,
-                'open': parsed_response['Time Series (Daily)'][k]['1. open'],
-                'high': parsed_response['Time Series (Daily)'][k]['2. high'],
-                'low': parsed_response['Time Series (Daily)'][k]['3. low'],
-                'close': parsed_response['Time Series (Daily)'][k]['4. close'],
-                'volume': parsed_response['Time Series (Daily)'][k]['5. volume']
-                })
+        # PULL RECENT HIGH: max of highs over last 100 days
+        # TODO: 52-week periods: For example, if the last available day of trading data is June 1st, 2018
+        # , the program should find the maximum of all the "high" prices between around June 1st, 2017
+        # and June 1st, 2018.
+        highlow_pd = 100
 
 
+        high_px = []
+
+        for d in close_days[0:highlow_pd]:
+            high_px.append(float(parsed_response['Time Series (Daily)'][d]['2. high']))
+
+        #print(high_px)
+        #print(len(high_px))
+        recent_high = max(high_px)
+        #print(recent_high)
 
 
-    # PRINT INFORMATION ---------------------------------------------------------------------
+        # PULL RECENT LOW: min of lows over last 100 days
+
+        low_px = []
+
+        for d in close_days[0:highlow_pd]:
+            low_px.append(float(parsed_response['Time Series (Daily)'][d]['3. low']))
+
+        #print(low_px)
+        #print(len(low_px))
+        recent_low = min(low_px)
+        #print(recent_low)
+
+
+        # WRITE CSV DATA ------------------------------------------------------------------------
+
+        headers = ['timestamp', 'open', 'high', 'low', 'close', 'volume'] #list(parsed_response['Time Series(Daily)'][latest_day].keys())
+        #print(headers)
+
+        csv_filepath = os.path.join(os.path.dirname(os.path.abspath(
+            __file__)), '..', 'data', f"{symbol}.csv")  # a relative filepath
+
+        with open(csv_filepath,'w') as csv_file:  # "w" means "open the file for writing"
+            writer = csv.DictWriter(csv_file, fieldnames=headers)
+            writer.writeheader()  # uses fieldnames set above
+
+            for k in close_days:
+                writer.writerow({
+                    'timestamp': k,
+                    'open': parsed_response['Time Series (Daily)'][k]['1. open'],
+                    'high': parsed_response['Time Series (Daily)'][k]['2. high'],
+                    'low': parsed_response['Time Series (Daily)'][k]['3. low'],
+                    'close': parsed_response['Time Series (Daily)'][k]['4. close'],
+                    'volume': parsed_response['Time Series (Daily)'][k]['5. volume']
+                    })
+
+
+
+
+        # PRINT INFORMATION ---------------------------------------------------------------------
+
+        print("-------------------------")
+        print(f"SELECTED SYMBOL: {symbol}")
+        print("-------------------------")
+        print(f"LATEST DAY: {last_ref_dt.strftime('%A, %B %#d')}{date_suffix(last_ref_dt)}, {last_ref_dt.strftime('%Y')}")
+        print(f"LATEST CLOSE: {to_usd(float(px_last))}")
+        print(f"RECENT HIGH: {to_usd(recent_high)}")
+        print(f"RECENT LOW: {to_usd(recent_low)}")
+        print("-------------------------")
+        print("RECOMMENDATION: BUY!")
+        print("RECOMMENDATION REASON: TODO")
+        print("-------------------------")
+        print(f"WRITING DATA TO CSV: {os.path.abspath(csv_filepath)}")
+        print("-------------------------")
+
+
+
+        #TODO: DATA VIS?? display a line graph of the stock prices over time.
+
+        #TODO: EMAIL ALERT?  Modify the logic of your application such that if it detects the stock's
+        # price has moved past a given threshold within a given time period (e.g. the price has increased
+        # or decreased by more than 5% within the past day), it will send the user a "Price Movement
+        # Alert" message via email.
+
+        #HINT: leverage the email-sending capabilities of the sendgrid package, and optionally use Sendgrid
+        # email templates to further control the formatting of email contents
+
+        #TODO: Modify the logic of your application such that if it detects the stock's price has moved
+        # past a given threshold within a given time period (e.g. the price has increased or decreased by
+        # more than 5% within the past day), it will send the user a "Price Movement Alert" message via SMS.
+
+        #HINT: leverage the SMS-sending capabilities of the twilio package
+
+        # for tomorrow...
+
+    else:
+        #print("-------------------------")
+        #print(f"There was an API error with your attempt to pull data for the ticker {tkr}.")
+        #print("-------------------------")
+
+        failed_tickers.append(tkr)
+
+
+if len(failed_tickers) > 0:
+    if len(failed_tickers) == len(input_ticker):
+        print("-------------------------")
+        print("UNABLE TO GENERATE REPORT FOR THE SPECIFIED TICKER(S).\nSEE ERROR SUMMARY")
+        print("-------------------------")
 
     print("-------------------------")
-    print(f"SELECTED SYMBOL: {symbol}")
-    print("-------------------------")
-    print("REQUESTING STOCK MARKET DATA...")
-    print(f"REQUEST AT: {dt_exec.strftime('%#I:%M%p').lower()} on {dt_exec.strftime('%A, %B %#d')}{date_suffix(dt_exec)}, {dt_exec.strftime('%Y')}")
-    print("-------------------------")
-    print(f"LATEST DAY: {last_ref_dt.strftime('%A, %B %#d')}{date_suffix(last_ref_dt)}, {last_ref_dt.strftime('%Y')}")
-    print(f"LATEST CLOSE: {to_usd(float(px_last))}")
-    print(f"RECENT HIGH: {to_usd(recent_high)}")
-    print(f"RECENT LOW: {to_usd(recent_low)}")
-    print("-------------------------")
-    print("RECOMMENDATION: BUY!")
-    print("RECOMMENDATION REASON: TODO")
-    print("-------------------------")
-    print(f"WRITING DATA TO CSV: {os.path.abspath(csv_filepath)}")
-    print("-------------------------")
-    print("HAPPY INVESTING!")
-    print("-------------------------")
+    print("ERROR SUMMARY:")
+    print("An error occurred while attempting to pull data from the API for the following ticker(s):")
+    for tkr in failed_tickers:
+        print(f"----{tkr}")
+    print("Please check the accuracy of the ticker(s) and try again.")
+    if max(spchk) > -1:
+        print("For example, a space was found in at least one input ticker (spaces are automatically removed).")
 
-
-    #TODO: DATA VIS?? display a line graph of the stock prices over time.
-
-    #TODO: EMAIL ALERT?  Modify the logic of your application such that if it detects the stock's
-    # price has moved past a given threshold within a given time period (e.g. the price has increased
-    # or decreased by more than 5% within the past day), it will send the user a "Price Movement
-    # Alert" message via email.
-
-    #HINT: leverage the email-sending capabilities of the sendgrid package, and optionally use Sendgrid
-    # email templates to further control the formatting of email contents
-
-    #TODO: Modify the logic of your application such that if it detects the stock's price has moved
-    # past a given threshold within a given time period (e.g. the price has increased or decreased by
-    # more than 5% within the past day), it will send the user a "Price Movement Alert" message via SMS.
-
-    #HINT: leverage the SMS-sending capabilities of the twilio package
-
-    # for tomorrow...
+print("-------------------------")
+print("HAPPY INVESTING!")
+print("-------------------------")
