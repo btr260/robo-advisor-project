@@ -279,6 +279,24 @@ for tkr in input_ticker:
         print("-------------------------")
 
 
+        sorted_chart_data = sorted(
+            chart_data, key=operator.itemgetter('timestamp'), reverse=False)
+
+        #print(sorted_chart_data)
+
+        cht_timestamp = [p['timestamp'] for p in sorted_chart_data]
+        cht_open = [p['open'] for p in sorted_chart_data]
+        cht_close = [p['close'] for p in sorted_chart_data]
+        cht_high = [p['high'] for p in sorted_chart_data]
+        cht_low = [p['low'] for p in sorted_chart_data]
+        #print(cht_timestamp)
+
+        fig = go.Figure(data=[go.Candlestick(
+            x=cht_timestamp, open=cht_open, high=cht_high, low=cht_low, close=cht_close)])
+        fig.show()
+
+
+
 
         #TODO: DATA VIS?? display a line graph of the stock prices over time.
 
@@ -328,17 +346,3 @@ if len(failed_tickers) > 0:
 print("-------------------------")
 print("HAPPY INVESTING!")
 print("-------------------------")
-
-
-sorted_chart_data=sorted(chart_data,key=operator.itemgetter('timestamp'),reverse=False)
-print(sorted_chart_data)
-
-cht_timestamp = [p['timestamp'] for p in sorted_chart_data]
-cht_open = [p['open'] for p in sorted_chart_data]
-cht_close = [p['close'] for p in sorted_chart_data]
-cht_high = [p['high'] for p in sorted_chart_data]
-cht_low = [p['low'] for p in sorted_chart_data]
-print(cht_timestamp)
-
-fig = go.Figure(data=[go.Candlestick(x=cht_timestamp, open=cht_open, high=cht_high, low=cht_low, close=cht_close)])
-fig.show()
