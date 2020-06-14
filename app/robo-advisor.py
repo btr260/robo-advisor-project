@@ -9,6 +9,7 @@ import csv
 import os
 from dotenv import load_dotenv
 import matplotlib
+import operator
 #import matplotlib.finance as candle
 
 
@@ -328,4 +329,13 @@ print("-------------------------")
 print("HAPPY INVESTING!")
 print("-------------------------")
 
-print(chart_data)
+
+sorted_chart_data=sorted(chart_data,key=operator.itemgetter('timestamp'),reverse=False)
+print(sorted_chart_data)
+
+cht_timestamp = [p['timestamp'] for p in sorted_chart_data]
+cht_open = [p['open'] for p in sorted_chart_data]
+cht_close = [p['close'] for p in sorted_chart_data]
+cht_high = [p['high'] for p in sorted_chart_data]
+cht_low = [p['low'] for p in sorted_chart_data]
+print(cht_timestamp)
