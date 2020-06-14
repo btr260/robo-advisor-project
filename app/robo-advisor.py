@@ -70,10 +70,13 @@ parsed_response=json.loads(response.text)
 #'2020-06-12'
 
 last_refreshed = parsed_response['Meta Data']['3. Last Refreshed']
+last_ref_dt = datetime.datetime.fromisoformat(last_refreshed)
+print(last_ref_dt)
+print(type(last_ref_dt))
 symbol = parsed_response['Meta Data']['2. Symbol']
 dt_exec = datetime.datetime.now()
-print(dt_exec)  # > 2020-06-13 15:38:02.986058
-print(type(dt_exec))  # > <class 'datetime.datetime'>
+#print(dt_exec)  # > 2020-06-13 15:38:02.986058
+#print(type(dt_exec))  # > <class 'datetime.datetime'>
 
 #print(parsed_response['Time Series (Daily)'])
 #print(parsed_response['Time Series (Daily)'].keys())
@@ -102,9 +105,9 @@ print("-------------------------")
 print(f"SELECTED SYMBOL: {symbol}")
 print("-------------------------")
 print("REQUESTING STOCK MARKET DATA...")
-print(f"REQUEST AT: {dt_exec.strftime('%Y-%m-%d %I:%M%p').lower()}")
+print(f"REQUEST AT: {dt_exec.strftime('%#I:%M%p').lower()} on {dt_exec.strftime('%A, %B %#d, %Y')}")
 print("-------------------------")
-print(f"LATEST DAY: {last_refreshed}")
+print(f"LATEST DAY: {last_ref_dt.strftime('%A, %B %#d, %Y')}")
 print(f"LATEST CLOSE: {to_usd(float(px_last))}")
 print("RECENT HIGH: $101,000.00")
 print("RECENT LOW: $99,000.00")
