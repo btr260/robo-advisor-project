@@ -188,7 +188,7 @@ for tkr in input_ticker:
         # TODO: 52-week periods: For example, if the last available day of trading data is June 1st, 2018
         # , the program should find the maximum of all the "high" prices between around June 1st, 2017
         # and June 1st, 2018.
-        highlow_pd = 100
+        highlow_pd = min(100,len(close_days))
 
 
         high_px = []
@@ -238,6 +238,15 @@ for tkr in input_ticker:
                     })
 
 
+        # RECOMMENDATION ------------------------------------------------------------------------
+
+        rec_criteria = float(px_last) / float(recent_low)
+        if rec_criteria >= 1.2:
+            rec = f"DO NOT BUY {symbol}!"
+            reason=f"{symbol} most recently closed at or above 20% of its recent low."
+        else:
+            rec = f"BUY {symbol}!"
+            reason=f"{symbol} most recently closed within 20% of its recent low"
 
 
         # PRINT INFORMATION ---------------------------------------------------------------------
@@ -250,8 +259,9 @@ for tkr in input_ticker:
         print(f"RECENT HIGH: {to_usd(recent_high)}")
         print(f"RECENT LOW: {to_usd(recent_low)}")
         print("-------------------------")
-        print("RECOMMENDATION: BUY!")
-        print("RECOMMENDATION REASON: TODO")
+        print(f"ANALYSIS: {symbol} is trading at {(100*rec_criteria):.1f}% of its recent low")
+        print(f"RECOMMENDATION: {rec}")
+        print(f"RECOMMENDATION REASON: {reason}")
         print("-------------------------")
         print(f"WRITING DATA TO CSV: {os.path.abspath(csv_filepath)}")
         print("-------------------------")
