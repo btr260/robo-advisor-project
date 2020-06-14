@@ -8,9 +8,9 @@ import datetime
 import csv
 import os
 from dotenv import load_dotenv
-import matplotlib
+import plotly.graph_objects as go
 import operator
-#import matplotlib.finance as candle
+
 
 
 # LOAD .ENV ----------------------------------------------------------------------
@@ -339,3 +339,6 @@ cht_close = [p['close'] for p in sorted_chart_data]
 cht_high = [p['high'] for p in sorted_chart_data]
 cht_low = [p['low'] for p in sorted_chart_data]
 print(cht_timestamp)
+
+fig = go.Figure(data=[go.Candlestick(x=cht_timestamp, open=cht_open, high=cht_high, low=cht_low, close=cht_close)])
+fig.show()
