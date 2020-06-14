@@ -43,7 +43,30 @@ def date_suffix(dt_for_suf):
 # REQUEST API DATA ----------------------------------------------------------------
 
 #input_ticker = ['MSFT', 'IBM']
-raw_input_tickers=['MSFT',' IB M','BARD RICCIARDI']
+
+init_tk_str = os.environ.get('INIT_TICKER_LIST')
+working_tk = init_tk_str.split(',')
+initial_tickers=[str(t).strip() for t in working_tk]
+
+if len(initial_tickers) > 0:
+    print('ROBO ADVISOR IS INITIALIZED WITH THE FOLLOWING TICKER(S):')
+    for t in initial_tickers:
+        print(f"---{t}")
+    add_tick_yn = input('Would you like to add more tickers? [y/n]')
+    while str(add_tick_yn).lower() not in ["y","n"]:
+        add_tick_yn=input("Response not recognized.  Please respond with 'y' for yes or 'n' for no.\nWould you like to add more tickers? [y/n]")
+    if str(add_tick_yn).lower() == "n":
+        raw_input_tickers = initial_tickers
+    else:
+        add_tick = input('Enter tickers (separated by comma if more than one):')
+        working_add_tick = str(add_tick).split(',')
+        fin_add_tick = [str(t).strip() for t in working_add_tick]
+        raw_input_tickers = initial_tickers
+        for t in fin_add_tick:
+            raw_input_tickers.append(t)
+
+
+#raw_input_tickers=['MSFT',' IB M','BARD RICCIARDI']
 input_ticker = [str(t).replace(" ", "") for t in raw_input_tickers]
 spchk = [str(t).find(" ") for t in raw_input_tickers]
 #print(spchk)
@@ -264,7 +287,7 @@ if len(failed_tickers) > 0:
         print(f"----{tkr}")
     print("Please check the accuracy of the ticker(s) and try again.")
     if max(spchk) > -1:
-        print("For example, a space was found in at least one input ticker (spaces are automatically removed).")
+        print("For example, a space was found in the middle of at least one input ticker (spaces are automatically removed).")
 
 print("-------------------------")
 print("HAPPY INVESTING!")
