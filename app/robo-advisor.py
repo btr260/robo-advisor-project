@@ -7,6 +7,7 @@ import json
 import datetime
 import csv
 import os
+from dotenv import load_dotenv
 
 
 # FUNCTIONS ----------------------------------------------------------------------
@@ -35,7 +36,15 @@ def date_suffix(dt_for_suf):
 
 # REQUEST API DATA ----------------------------------------------------------------
 
-request_url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo"
+load_dotenv()
+#print(os.environ.get('ALPHAVANTAGE_API_KEY'))
+
+input_ticker = 'IBM' #TODO: take user input(s)
+
+api_key = os.environ.get('ALPHAVANTAGE_API_KEY')
+
+
+request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={input_ticker}&apikey={api_key}"
 response = requests.get(request_url)
 #print(type(response))  # > <class 'requests.models.Response'>
 #print(response.status_code) # > 200
