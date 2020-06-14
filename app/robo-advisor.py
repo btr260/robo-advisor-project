@@ -21,6 +21,14 @@ def to_usd(my_price):
     '''
     return f'${my_price:,.2f}'  # > $12,000.71
 
+def date_suffix(dt_for_suf):
+    if 4 <= dt_for_suf.day <= 20 or 24 <= dt_for_suf.day <= 30:
+        suffix='th'
+    else:
+        suffix = ['st', 'nd', 'rd'][dt_for_suf.day % 10 - 1]
+
+    return suffix
+
 
 
 # REQUEST API DATA ----------------------------------------------------------------
@@ -71,8 +79,9 @@ parsed_response=json.loads(response.text)
 
 last_refreshed = parsed_response['Meta Data']['3. Last Refreshed']
 last_ref_dt = datetime.datetime.fromisoformat(last_refreshed)
-print(last_ref_dt)
-print(type(last_ref_dt))
+#print(last_ref_dt) # > 2020-06-12 00:00:00
+#print(type(last_ref_dt)) # > <class 'datetime.datetime'>
+
 symbol = parsed_response['Meta Data']['2. Symbol']
 dt_exec = datetime.datetime.now()
 #print(dt_exec)  # > 2020-06-13 15:38:02.986058
@@ -105,9 +114,9 @@ print("-------------------------")
 print(f"SELECTED SYMBOL: {symbol}")
 print("-------------------------")
 print("REQUESTING STOCK MARKET DATA...")
-print(f"REQUEST AT: {dt_exec.strftime('%#I:%M%p').lower()} on {dt_exec.strftime('%A, %B %#d, %Y')}")
+print(f"REQUEST AT: {dt_exec.strftime('%#I:%M%p').lower()} on {dt_exec.strftime('%A, %B %#d')}{date_suffix(dt_exec)}, {dt_exec.strftime('%Y')}")
 print("-------------------------")
-print(f"LATEST DAY: {last_ref_dt.strftime('%A, %B %#d, %Y')}")
+print(f"LATEST DAY: {last_ref_dt.strftime('%A, %B %#d')}{date_suffix(last_ref_dt)}, {last_ref_dt.strftime('%Y')}")
 print(f"LATEST CLOSE: {to_usd(float(px_last))}")
 print("RECENT HIGH: $101,000.00")
 print("RECENT LOW: $99,000.00")
