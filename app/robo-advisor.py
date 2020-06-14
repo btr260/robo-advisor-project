@@ -42,7 +42,7 @@ def date_suffix(dt_for_suf):
 
 # REQUEST API DATA ----------------------------------------------------------------
 
-input_ticker = 'AAPL'
+input_ticker = input('Please input a ticker symbol: ')
 
 #TODO: take user inputs
 #TODO: check user inputs for formatting >> this doesn't seem to matter (unless you don't enter anything)
