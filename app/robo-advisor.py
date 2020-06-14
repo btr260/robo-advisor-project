@@ -147,7 +147,7 @@ headers = ['timestamp', 'open', 'high', 'low', 'close', 'volume'] #list(parsed_r
 print(headers)
 
 csv_filepath = os.path.join(os.path.dirname(os.path.abspath(
-    __file__)), '..', 'data', 'prices.csv')  # a relative filepath
+    __file__)), '..', 'data', f"{symbol}.csv")  # a relative filepath
 
 with open(csv_filepath,'w') as csv_file:  # "w" means "open the file for writing"
     writer = csv.DictWriter(csv_file, fieldnames=headers)
