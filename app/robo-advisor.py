@@ -42,16 +42,22 @@ def date_suffix(dt_for_suf):
 
 # REQUEST API DATA ----------------------------------------------------------------
 
-input_ticker = 'BUFUuuuu'  #TODO: take user input(s)
+input_ticker = 'AAPL'
+
+#TODO: take user inputs
+#TODO: check user inputs for formatting >> this doesn't seem to matter (unless you don't enter anything)
+#TODO: since formatting may not matter, see if you can return only those list items for which there
+# were errors in pulling data. Prompt user to enter more tickers or continue.
+
 
 #TODO: Take user risk tolerance - how to translate risk tolerance into advice?
 
 request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={input_ticker}&apikey={api_key}"
 response = requests.get(request_url)
-print(type(response))  # > <class 'requests.models.Response'>
-print(response.status_code) # > 200
+#print(type(response))  # > <class 'requests.models.Response'>
+#print(response.status_code) # > 200
 #print(type(response.text)) # > <class 'str'>
-print(response.text) # > STRING variable (shown below).  Need to parse into process into dictionary using json module.
+#print(response.text) # > STRING variable (shown below).  Need to parse into process into dictionary using json module.
 
 #{
 #"Meta Data": {
@@ -126,7 +132,11 @@ px_last = parsed_response['Time Series (Daily)'][latest_day]['4. close']
 #print(type(px_last)) # > <class 'str'>
 
 # PULL RECENT HIGH: max of highs over last 100 days
+# TODO: 52-week periods: For example, if the last available day of trading data is June 1st, 2018
+# , the program should find the maximum of all the "high" prices between around June 1st, 2017
+# and June 1st, 2018.
 highlow_pd = 100
+
 
 high_px = []
 
@@ -197,3 +207,20 @@ print(f"WRITING DATA TO CSV: {os.path.abspath(csv_filepath)}")
 print("-------------------------")
 print("HAPPY INVESTING!")
 print("-------------------------")
+
+
+#TODO: DATA VIS?? display a line graph of the stock prices over time.
+
+#TODO: EMAIL ALERT?  Modify the logic of your application such that if it detects the stock's
+# price has moved past a given threshold within a given time period (e.g. the price has increased
+# or decreased by more than 5% within the past day), it will send the user a "Price Movement
+# Alert" message via email.
+
+#HINT: leverage the email-sending capabilities of the sendgrid package, and optionally use Sendgrid
+# email templates to further control the formatting of email contents
+
+#TODO: Modify the logic of your application such that if it detects the stock's price has moved
+# past a given threshold within a given time period (e.g. the price has increased or decreased by
+# more than 5% within the past day), it will send the user a "Price Movement Alert" message via SMS.
+
+#HINT: leverage the SMS-sending capabilities of the twilio package
