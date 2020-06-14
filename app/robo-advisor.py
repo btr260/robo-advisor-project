@@ -8,7 +8,8 @@ import datetime
 import csv
 import os
 from dotenv import load_dotenv
-
+import matplotlib
+#import matplotlib.finance as candle
 
 
 # LOAD .ENV ----------------------------------------------------------------------
@@ -223,6 +224,8 @@ for tkr in input_ticker:
         csv_filepath = os.path.join(os.path.dirname(os.path.abspath(
             __file__)), '..', 'data', f"{symbol}.csv")  # a relative filepath
 
+        chart_data=[]
+
         with open(csv_filepath,'w') as csv_file:  # "w" means "open the file for writing"
             writer = csv.DictWriter(csv_file, fieldnames=headers)
             writer.writeheader()  # uses fieldnames set above
@@ -237,6 +240,14 @@ for tkr in input_ticker:
                     'volume': parsed_response['Time Series (Daily)'][k]['5. volume']
                     })
 
+                chart_data.append({
+                    'timestamp': k,
+                    'open': parsed_response['Time Series (Daily)'][k]['1. open'],
+                    'high': parsed_response['Time Series (Daily)'][k]['2. high'],
+                    'low': parsed_response['Time Series (Daily)'][k]['3. low'],
+                    'close': parsed_response['Time Series (Daily)'][k]['4. close'],
+                    'volume': parsed_response['Time Series (Daily)'][k]['5. volume']
+                    })
 
         # RECOMMENDATION ------------------------------------------------------------------------
 
@@ -316,3 +327,5 @@ if len(failed_tickers) > 0:
 print("-------------------------")
 print("HAPPY INVESTING!")
 print("-------------------------")
+
+print(chart_data)
