@@ -46,7 +46,8 @@ def date_suffix(dt_for_suf):
 
 init_tk_str = os.environ.get('INIT_TICKER_LIST')
 working_tk = init_tk_str.split(',')
-initial_tickers=[str(t).strip() for t in working_tk]
+initial_tickers = [str(t).strip() for t in working_tk]
+initial_tickers = [t for t in working_tk if t != '']
 
 if len(initial_tickers) > 0:
     print('ROBO ADVISOR IS INITIALIZED WITH THE FOLLOWING TICKER(S):')
@@ -61,11 +62,20 @@ if len(initial_tickers) > 0:
         add_tick = input('Enter tickers (separated by comma if more than one):')
         working_add_tick = str(add_tick).split(',')
         fin_add_tick = [str(t).strip() for t in working_add_tick]
+        fin_add_tick = [t for t in fin_add_tick if t != '']
         raw_input_tickers = initial_tickers
         for t in fin_add_tick:
             raw_input_tickers.append(t)
 
+else:
+    add_tick = input('Enter tickers (separated by comma if more than one):')
+    working_add_tick = str(add_tick).split(',')
+    working_add_tick = [str(t).strip() for t in working_add_tick]
+    raw_input_tickers=[t for t in working_add_tick if t!='']
 
+#breakpoint()
+
+raw_input_tickers=[t.upper() for t in raw_input_tickers]
 #raw_input_tickers=['MSFT',' IB M','BARD RICCIARDI']
 input_ticker = [str(t).replace(" ", "") for t in raw_input_tickers]
 spchk = [str(t).find(" ") for t in raw_input_tickers]
@@ -270,8 +280,12 @@ for tkr in input_ticker:
         #print("-------------------------")
         #print(f"There was an API error with your attempt to pull data for the ticker {tkr}.")
         #print("-------------------------")
-
-        failed_tickers.append(tkr)
+        if error_check == "Error Message":
+            failed_tickers.append({'ticker': tkr, 'err_type': 'Invalid API Call'})
+        elif error_check == "Note":
+            failed_tickers.append({'ticker': tkr, 'err_type': 'Exceeds API Call Limit (5 per minute and 500 per day)'})
+        else:
+            failed_tickers.append({'ticker': tkr, 'err_type': 'Other'})
 
 
 if len(failed_tickers) > 0:
@@ -283,8 +297,8 @@ if len(failed_tickers) > 0:
     print("-------------------------")
     print("ERROR SUMMARY:")
     print("An error occurred while attempting to pull data from the API for the following ticker(s):")
-    for tkr in failed_tickers:
-        print(f"----{tkr}")
+    for t in failed_tickers:
+        print(f"----{t['ticker']}: {t['err_type']}")
     print("Please check the accuracy of the ticker(s) and try again.")
     if max(spchk) > -1:
         print("For example, a space was found in the middle of at least one input ticker (spaces are automatically removed).")
