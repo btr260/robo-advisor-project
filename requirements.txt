@@ -1,4 +1,3 @@
 requests
 python-dotenv
-maplotlib
-mpl_finance
+plotly

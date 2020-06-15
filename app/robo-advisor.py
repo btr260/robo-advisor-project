@@ -270,10 +270,12 @@ for tkr in input_ticker:
         rec_criteria = float(px_last) / float(recent_low)
         if rec_criteria >= 1.2:
             rec = f"DO NOT BUY {symbol}!"
-            reason=f"{symbol} most recently closed at or above 20% of its recent low."
+            reason = f"{symbol} most recently closed at or above 20% of its recent low."
+            rec_cht=f"Do Not Buy: currently trading at or above 20% of its recent low"
         else:
             rec = f"BUY {symbol}!"
-            reason=f"{symbol} most recently closed within 20% of its recent low"
+            reason = f"{symbol} most recently closed within 20% of its recent low"
+            rec_cht=f"Buy: currently trading within 20% of recent low"
 
 
         # PRINT INFORMATION ---------------------------------------------------------------------
@@ -316,30 +318,11 @@ for tkr in input_ticker:
         #print(anno)
         fig = go.Figure(data=[go.Candlestick(
             x=cht_timestamp, open=cht_open, high=cht_high, low=cht_low, close=cht_close)],
-                layout=go.Layout(title=go.layout.Title(text=f"{symbol}"), shapes=thresh, annotations=anno, yaxis_title="Price per Share (USD)"))
+                layout=go.Layout(title=go.layout.Title(text=f"{symbol} - {rec_cht}"), shapes=thresh, annotations=anno, yaxis_title="Price per Share (USD)"))
 
         fig.show()
 
 
-
-
-        #TODO: DATA VIS?? display a line graph of the stock prices over time.
-
-        #TODO: EMAIL ALERT?  Modify the logic of your application such that if it detects the stock's
-        # price has moved past a given threshold within a given time period (e.g. the price has increased
-        # or decreased by more than 5% within the past day), it will send the user a "Price Movement
-        # Alert" message via email.
-
-        #HINT: leverage the email-sending capabilities of the sendgrid package, and optionally use Sendgrid
-        # email templates to further control the formatting of email contents
-
-        #TODO: Modify the logic of your application such that if it detects the stock's price has moved
-        # past a given threshold within a given time period (e.g. the price has increased or decreased by
-        # more than 5% within the past day), it will send the user a "Price Movement Alert" message via SMS.
-
-        #HINT: leverage the SMS-sending capabilities of the twilio package
-
-        # for tomorrow...
 
     else:
         #print("-------------------------")
