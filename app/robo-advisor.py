@@ -203,7 +203,6 @@ for tkr in input_ticker:
         recent_high = max(high_px)
         #print(recent_high)
 
-
         # PULL RECENT LOW: min of lows over last 100 days
 
         low_px = []
@@ -215,6 +214,22 @@ for tkr in input_ticker:
         #print(len(low_px))
         recent_low = min(low_px)
         #print(recent_low)
+
+        high_date = []
+        low_date= []
+        for k, d in parsed_response['Time Series (Daily)'].items():
+            #print(k)
+            #print(d)
+            #print(d['2. high'])
+            #breakpoint()
+            if float(d['2. high']) == recent_high:
+                high_date.append(k)
+            elif float(d['3. low']) == recent_low:
+                low_date.append(k)
+
+        recent_high_dt = datetime.datetime.fromisoformat(high_date[0])
+        recent_low_dt = datetime.datetime.fromisoformat(low_date[0])
+
 
 
         # WRITE CSV DATA ------------------------------------------------------------------------
@@ -291,8 +306,10 @@ for tkr in input_ticker:
         cht_low = [p['low'] for p in sorted_chart_data]
         #print(cht_timestamp)
 
-        anno = [dict(x=last_ref_dt, y=px_last, xref='x', yref='y', text=f"Last Close: {to_usd(float(px_last))}", showarrow=True, arrowhead=7, ax=0, ay=-80),
-                dict(x=last_ref_dt, y=px_last, xref='x', yref='y', text=f"Last Close: {to_usd(float(px_last))}", showarrow=True, arrowhead=7, ax=0, ay=-80)]
+        anno = [dict(x=last_ref_dt, y=px_last, xref='x', yref='y', text=f"Last Close: {to_usd(float(px_last))}", showarrow=True, arrowhead=7, ax=40, ay=-40),
+                dict(x=recent_high_dt, y=recent_high, xref='x', yref='y', text=f"Recent High: {to_usd(recent_high)}", showarrow=True, arrowhead=7, ax=-40, ay=-40),
+                dict(x=recent_low_dt, y=recent_low, xref='x', yref='y', text=f"Recent Low: {to_usd(recent_low)}", showarrow=True, arrowhead=7, ax=0, ay=40)]
+
         print(anno)
         fig = go.Figure(data=[go.Candlestick(
             x=cht_timestamp, open=cht_open, high=cht_high, low=cht_low, close=cht_close)],
