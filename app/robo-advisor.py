@@ -40,21 +40,35 @@ def date_suffix(dt_for_suf):
 
     return suffix
 
+def hasnum(ticker_input_str):
+    return any(char.isdigit() for char in ticker_input_str)
+
 
 
 # REQUEST API DATA ----------------------------------------------------------------
-
 #input_ticker = ['MSFT', 'IBM']
-
+failed_tickers = []
 init_tk_str = os.environ.get('INIT_TICKER_LIST')
 working_tk = init_tk_str.split(',')
 initial_tickers = [str(t).strip() for t in working_tk]
-initial_tickers = [t for t in working_tk if t != '']
+for t in initial_tickers:
+    if hasnum(t) == True:
+        failed_tickers.append({'ticker':t.upper(),'err_type':'Discarded from ticker list for presence of invalid numeric characters'})
+
+initial_tickers = [t for t in initial_tickers if hasnum(t) == False]
+
+initial_tickers = [t for t in initial_tickers if t != '']
 
 if len(initial_tickers) > 0:
     print('ROBO ADVISOR IS INITIALIZED WITH THE FOLLOWING TICKER(S):')
     for t in initial_tickers:
         print(f"---{t}")
+    if len(failed_tickers) > 0:
+        print("-------------------------")
+        print('The following initialized tickers were discarded for invalid numeric characters:')
+        for ft in failed_tickers:
+            print(f"---{ft['ticker'].upper()}")
+    print("-------------------------")
     add_tick_yn = input('Would you like to add more tickers? [y/n]')
     while str(add_tick_yn).lower() not in ["y","n"]:
         add_tick_yn=input("Response not recognized.  Please respond with 'y' for yes or 'n' for no.\nWould you like to add more tickers? [y/n]")
@@ -64,6 +78,11 @@ if len(initial_tickers) > 0:
         add_tick = input('Enter tickers (separated by comma if more than one):')
         working_add_tick = str(add_tick).split(',')
         fin_add_tick = [str(t).strip() for t in working_add_tick]
+        for t in fin_add_tick:
+            if hasnum(t) == True:
+                failed_tickers.append({'ticker': t.upper(), 'err_type': 'Discarded from ticker list for presence of invalid numeric characters'})
+
+        fin_add_tick = [t for t in fin_add_tick if hasnum(t) == False]
         fin_add_tick = [t for t in fin_add_tick if t != '']
         raw_input_tickers = initial_tickers
         for t in fin_add_tick:
@@ -73,6 +92,11 @@ else:
     add_tick = input('Enter tickers (separated by comma if more than one):')
     working_add_tick = str(add_tick).split(',')
     working_add_tick = [str(t).strip() for t in working_add_tick]
+    for t in working_add_tick:
+            if hasnum(t) == True:
+                failed_tickers.append({'ticker': t.upper(), 'err_type': 'Discarded from ticker list for presence of invalid numeric characters'})
+
+    working_add_tick = [t for t in working_add_tick if hasnum(t) == False]
     raw_input_tickers=[t for t in working_add_tick if t!='']
 
 #breakpoint()
@@ -84,7 +108,7 @@ spchk = [str(t).find(" ") for t in raw_input_tickers]
 #print(spchk)
 
 #TODO: write validation code for input list
-failed_tickers=[]
+
 #TODO: take user inputs
 #TODO: check user inputs for formatting >> this doesn't seem to matter (unless you don't enter anything)
 #TODO: since formatting may not matter, see if you can return only those list items for which there
@@ -344,13 +368,15 @@ if len(failed_tickers) > 0:
 
     print("-------------------------")
     print("ERROR SUMMARY:")
-    print("An error occurred while attempting to pull data from the API for the following ticker(s):")
+    print("The program discarded or was unable to pull data from the API for the following ticker(s):")
     for t in failed_tickers:
         print(f"----{t['ticker']}: {t['err_type']}")
     print("Please check the accuracy of the ticker(s) and try again.")
     if max(spchk) > -1:
-        print("For example, a space was found in the middle of at least one input ticker (spaces are automatically removed).")
+        print("Note: spaces found in ticker inputs are automatically removed")
 
 print("-------------------------")
 print("HAPPY INVESTING!")
 print("-------------------------")
+
+#TODO: "Nothing to request" if no tickers provided.
