@@ -306,14 +306,18 @@ for tkr in input_ticker:
         cht_low = [p['low'] for p in sorted_chart_data]
         #print(cht_timestamp)
 
-        anno = [dict(x=last_ref_dt, y=px_last, xref='x', yref='y', text=f"Last Close: {to_usd(float(px_last))}", showarrow=True, arrowhead=7, ax=40, ay=-40),
+        anno = [dict(x=last_ref_dt, y=px_last, xref='x', yref='y', text=f"Last Close: {to_usd(float(px_last))}", showarrow=True, arrowhead=7, ax=-40, ay=80),
                 dict(x=recent_high_dt, y=recent_high, xref='x', yref='y', text=f"Recent High: {to_usd(recent_high)}", showarrow=True, arrowhead=7, ax=-40, ay=-40),
-                dict(x=recent_low_dt, y=recent_low, xref='x', yref='y', text=f"Recent Low: {to_usd(recent_low)}", showarrow=True, arrowhead=7, ax=0, ay=40)]
+                dict(x=recent_low_dt, y=recent_low, xref='x', yref='y', text=f"Recent Low: {to_usd(recent_low)}", showarrow=True, arrowhead=7, ax=-40, ay=40),
+                dict(x=last_ref_dt, y=(1.2*recent_low), xref='x', yref='y', text=f"Price Threshhold for Purchase: {to_usd(1.2*recent_low)}", showarrow=False, yanchor='bottom',xanchor='right')]
 
-        print(anno)
+        thresh=[dict(x0=min(cht_timestamp),x1=max(cht_timestamp),y0=(1.2*recent_low),y1=(1.2*recent_low),xref='x',yref='y',line_width=1)]
+
+        #print(anno)
         fig = go.Figure(data=[go.Candlestick(
             x=cht_timestamp, open=cht_open, high=cht_high, low=cht_low, close=cht_close)],
-                layout=go.Layout(title=go.layout.Title(text=f"{symbol}"),annotations=anno))
+                layout=go.Layout(title=go.layout.Title(text=f"{symbol}"), shapes=thresh, annotations=anno, yaxis_title="Price per Share (USD)"))
+
         fig.show()
 
 
