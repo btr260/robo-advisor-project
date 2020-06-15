@@ -16,7 +16,6 @@ import operator
 # LOAD .ENV ----------------------------------------------------------------------
 load_dotenv()
 api_key = os.environ.get('ALPHAVANTAGE_API_KEY')
-#print(os.environ.get('ALPHAVANTAGE_API_KEY'))
 
 # FUNCTIONS ----------------------------------------------------------------------
 
@@ -33,6 +32,9 @@ def to_usd(my_price):
     return f'${my_price:,.2f}'  # > $12,000.71
 
 def date_suffix(dt_for_suf):
+    '''
+    Adds st, nd, rd, or th to the end of a day of the month.
+    '''
     if 4 <= dt_for_suf.day <= 20 or 24 <= dt_for_suf.day <= 30:
         suffix='th'
     else:
@@ -41,16 +43,23 @@ def date_suffix(dt_for_suf):
     return suffix
 
 def hasnum(ticker_input_str):
+    '''
+    Checks string for presence of numeric character
+    '''
     return any(char.isdigit() for char in ticker_input_str)
 
 
-
 # REQUEST API DATA ----------------------------------------------------------------
-#input_ticker = ['MSFT', 'IBM']
+## TICKER INPUT AND VALIDATION ----------------------------------------------------
+
 failed_tickers = []
+
 init_tk_str = os.environ.get('INIT_TICKER_LIST')
+
 working_tk = init_tk_str.split(',')
+
 initial_tickers = [str(t).strip() for t in working_tk]
+
 for t in initial_tickers:
     if hasnum(t) == True:
         failed_tickers.append({'ticker':t.upper(),'err_type':'Discarded from ticker list for presence of invalid numeric characters'})
@@ -60,24 +69,37 @@ initial_tickers = [t for t in initial_tickers if hasnum(t) == False]
 initial_tickers = [t for t in initial_tickers if t != '']
 
 if len(initial_tickers) > 0:
+
     print('ROBO ADVISOR IS INITIALIZED WITH THE FOLLOWING TICKER(S):')
+
     for t in initial_tickers:
+
         print(f"---{t}")
+
     if len(failed_tickers) > 0:
+
         print("-------------------------")
         print('The following initialized tickers were discarded for invalid numeric characters:')
+
         for ft in failed_tickers:
             print(f"---{ft['ticker'].upper()}")
+
     print("-------------------------")
+
     add_tick_yn = input('Would you like to add more tickers? [y/n]')
+
     while str(add_tick_yn).lower() not in ["y","n"]:
         add_tick_yn=input("Response not recognized.  Please respond with 'y' for yes or 'n' for no.\nWould you like to add more tickers? [y/n]")
+
     if str(add_tick_yn).lower() == "n":
         raw_input_tickers = initial_tickers
+
     else:
-        add_tick = input('Enter tickers (separated by comma if more than one):')
+
+        add_tick = input('Enter tickers (separated by comma if more than one - e.g. MSFT,IBM):')
         working_add_tick = str(add_tick).split(',')
         fin_add_tick = [str(t).strip() for t in working_add_tick]
+
         for t in fin_add_tick:
             if hasnum(t) == True:
                 failed_tickers.append({'ticker': t.upper(), 'err_type': 'Discarded from ticker list for presence of invalid numeric characters'})
@@ -85,13 +107,16 @@ if len(initial_tickers) > 0:
         fin_add_tick = [t for t in fin_add_tick if hasnum(t) == False]
         fin_add_tick = [t for t in fin_add_tick if t != '']
         raw_input_tickers = initial_tickers
+
         for t in fin_add_tick:
             raw_input_tickers.append(t)
 
 else:
-    add_tick = input('Enter tickers (separated by comma if more than one):')
+
+    add_tick = input('Enter tickers (separated by comma if more than one - e.g. MSFT,IBM):')
     working_add_tick = str(add_tick).split(',')
     working_add_tick = [str(t).strip() for t in working_add_tick]
+
     for t in working_add_tick:
             if hasnum(t) == True:
                 failed_tickers.append({'ticker': t.upper(), 'err_type': 'Discarded from ticker list for presence of invalid numeric characters'})
@@ -99,176 +124,106 @@ else:
     working_add_tick = [t for t in working_add_tick if hasnum(t) == False]
     raw_input_tickers=[t for t in working_add_tick if t!='']
 
-#breakpoint()
+
 
 raw_input_tickers=[t.upper() for t in raw_input_tickers]
-#raw_input_tickers=['MSFT',' IB M','BARD RICCIARDI']
+
 input_ticker = [str(t).replace(" ", "") for t in raw_input_tickers]
+
 spchk = [str(t).find(" ") for t in raw_input_tickers]
-#print(spchk)
 
-#TODO: write validation code for input list
 
-#TODO: take user inputs
-#TODO: check user inputs for formatting >> this doesn't seem to matter (unless you don't enter anything)
-#TODO: since formatting may not matter, see if you can return only those list items for which there
-# were errors in pulling data. Prompt user to enter more tickers or continue.
+
+# PULL DATE AND TIME OF EXECUTION (CURRENT DATE AND TIME)----------------------------------------
 
 dt_exec = datetime.datetime.now()
-#print(dt_exec)  # > 2020-06-13 15:38:02.986058
-#print(type(dt_exec))  # > <class 'datetime.datetime'>
 
-
+# PRINT FIRST LINES DESCRIBING PROGRAM EXECUTION-------------------------------------------------
 print("-------------------------")
 print("REQUESTING STOCK MARKET DATA...")
 print(f"REQUEST AT: {dt_exec.strftime('%#I:%M%p').lower()} on {dt_exec.strftime('%A, %B %#d')}{date_suffix(dt_exec)}, {dt_exec.strftime('%Y')}")
 
 
-#TODO: Take user risk tolerance - how to translate risk tolerance into advice?
+# REQUEST DATA FROM API AND RUN CALCULATIONS FOR EACH TICKER (LOOP)-------------------------------
 
 for tkr in input_ticker:
 
     request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={tkr}&apikey={api_key}"
     response = requests.get(request_url)
-    #print(type(response))  # > <class 'requests.models.Response'>
-    #print(response.status_code) # > 200
-    #print(type(response.text)) # > <class 'str'>
-    #print(response.text) # > STRING variable (shown below).  Need to parse into process into dictionary using json module.
-
-    #{
-    #"Meta Data": {
-    #    "1. Information": "Daily Prices (open, high, low, close) and Volumes",
-    #    "2. Symbol": "IBM",
-    #    "3. Last Refreshed": "2020-06-12",
-    #    "4. Output Size": "Compact",
-    #    "5. Time Zone": "US/Eastern"
-    #},
-    #"Time Series (Daily)": {
-    #    "2020-06-12": {
-    #        "1. open": "121.2500",
-    #        "2. high": "123.1200",
-    #        "3. low": "119.2800",
-    #        "4. close": "121.9100",
-    #        "5. volume": "6218003"
-    #    }, ...
 
     # PARSE API DATA -----------------------------------------------------------------------
 
     parsed_response = json.loads(response.text)
-    #print(type(parsed_response)) # > <class 'dict'>
-    #print(parsed_response.keys()) # > dict_keys(['Meta Data', 'Time Series (Daily)'])
-
 
     error_check_list = list(parsed_response.keys())
     error_check = error_check_list[0]
 
-    if error_check=='Meta Data':
+    if error_check=='Meta Data': # IF TICKER IS ABLE TO PULL ACTUAL DATA
 
-
-        # PULL LAST REFRESH FROM DATA -----------------------------------------------------------
-
-        #print(parsed_response['Meta Data'])
-        #{'1. Information': 'Daily Prices (open, high, low, close) and Volumes', '2. Symbol': 'IBM',
-        # '3. Last Refreshed': '2020-06-12', '4. Output Size': 'Compact', '5. Time Zone': 'US/Eastern'}
-
-        #print(parsed_response['Meta Data'].keys())
-        #dict_keys(['1. Information', '2. Symbol', '3. Last Refreshed',
-        #           '4. Output Size', '5. Time Zone'])
-
-        #print(parsed_response['Meta Data']['3. Last Refreshed'])
-        #'2020-06-12'
+        # PULL LAST REFRESH DATE FROM DATA ------------------------------------------------------------------
 
         last_refreshed = parsed_response['Meta Data']['3. Last Refreshed']
-        last_ref_dt = datetime.datetime.fromisoformat(last_refreshed)
-        #print(last_ref_dt) # > 2020-06-12 00:00:00
-        #print(type(last_ref_dt)) # > <class 'datetime.datetime'>
 
+        last_ref_dt = datetime.datetime.fromisoformat(last_refreshed)
 
         # PULL SYMBOL FROM DATA ------------------------------------------------------------------
 
         symbol = parsed_response['Meta Data']['2. Symbol']
 
-        #print(parsed_response['Time Series (Daily)'])
-        #print(parsed_response['Time Series (Daily)'].keys())
-        #dict_keys(['2020-06-12', '2020-06-11', '2020-06-10', '2020-06-09', '2020-06-08', '2020-06-05',
-        # '2020-06-04', '2020-06-03', '2020-06-02', '2020-06-01', '2020-05-29', '2020-05-28', '2020-05-27',
-        #  '2020-05-26', '2020-05-22', '2020-05-21', '2020-05-20', '2020-05-19', '2020-05-18', ...
-
-        #print(parsed_response['Time Series (Daily)']['2020-06-12'])
-        #{'1. open': '121.2500', '2. high': '123.1200', '3. low': '119.2800', '4. close': '121.9100',
-        #  '5. volume': '6218003'}
-
-        #print(parsed_response['Time Series (Daily)']['2020-06-12'].keys())
-        #dict_keys(['1. open', '2. high', '3. low', '4. close', '5. volume'])
-
         # PULL LATEST CLOSE FROM DATA ------------------------------------------------------------
 
-        # Get list of time series days #TODO: currently assumes data is sorted.  consider sorting to ensure
         close_days = list(parsed_response['Time Series (Daily)'].keys())
         latest_day = close_days[0]
         px_last = parsed_response['Time Series (Daily)'][latest_day]['4. close']
-        #print(px_last)
-        #print(type(px_last)) # > <class 'str'>
 
-        # PULL RECENT HIGH: max of highs over last 100 days
-        # TODO: 52-week periods: For example, if the last available day of trading data is June 1st, 2018
-        # , the program should find the maximum of all the "high" prices between around June 1st, 2017
-        # and June 1st, 2018.
+        # PULL HIGH AND LOW FROM DATA----------------------------------------------------------------
+
         highlow_pd = min(100,len(close_days))
-
 
         high_px = []
 
         for d in close_days[0:highlow_pd]:
             high_px.append(float(parsed_response['Time Series (Daily)'][d]['2. high']))
 
-        #print(high_px)
-        #print(len(high_px))
         recent_high = max(high_px)
-        #print(recent_high)
-
-        # PULL RECENT LOW: min of lows over last 100 days
 
         low_px = []
 
         for d in close_days[0:highlow_pd]:
             low_px.append(float(parsed_response['Time Series (Daily)'][d]['3. low']))
 
-        #print(low_px)
-        #print(len(low_px))
         recent_low = min(low_px)
-        #print(recent_low)
 
+        # PULL MOST RECENT DATE OF HIGH/LOW PRICE FOR USE IN CHART--------------------------------
         high_date = []
         low_date= []
+
         for k, d in parsed_response['Time Series (Daily)'].items():
-            #print(k)
-            #print(d)
-            #print(d['2. high'])
-            #breakpoint()
+
             if float(d['2. high']) == recent_high:
                 high_date.append(k)
+
             elif float(d['3. low']) == recent_low:
                 low_date.append(k)
 
         recent_high_dt = datetime.datetime.fromisoformat(high_date[0])
+
         recent_low_dt = datetime.datetime.fromisoformat(low_date[0])
 
 
 
         # WRITE CSV DATA ------------------------------------------------------------------------
 
-        headers = ['timestamp', 'open', 'high', 'low', 'close', 'volume'] #list(parsed_response['Time Series(Daily)'][latest_day].keys())
-        #print(headers)
+        headers = ['timestamp', 'open', 'high', 'low', 'close', 'volume']
 
         csv_filepath = os.path.join(os.path.dirname(os.path.abspath(
-            __file__)), '..', 'data', f"{symbol}.csv")  # a relative filepath
+            __file__)), '..', 'data', f"{symbol}.csv")
 
         chart_data=[]
 
-        with open(csv_filepath,'w') as csv_file:  # "w" means "open the file for writing"
+        with open(csv_filepath,'w') as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=headers)
-            writer.writeheader()  # uses fieldnames set above
+            writer.writeheader()
 
             for k in close_days:
                 writer.writerow({
@@ -292,10 +247,12 @@ for tkr in input_ticker:
         # RECOMMENDATION ------------------------------------------------------------------------
 
         rec_criteria = float(px_last) / float(recent_low)
+
         if rec_criteria >= 1.2:
             rec = f"DO NOT BUY {symbol}!"
             reason = f"{symbol} most recently closed at or above 20% of its recent low."
             rec_cht=f"Do Not Buy: currently trading at or above 20% of its recent low"
+
         else:
             rec = f"BUY {symbol}!"
             reason = f"{symbol} most recently closed within 20% of its recent low"
@@ -319,6 +276,7 @@ for tkr in input_ticker:
         print(f"WRITING DATA TO CSV: {os.path.abspath(csv_filepath)}")
         print("-------------------------")
 
+        #PREP CHART----------------------------------------------------------------------------------
 
         sorted_chart_data = sorted(
             chart_data, key=operator.itemgetter('timestamp'), reverse=False)
@@ -347,19 +305,18 @@ for tkr in input_ticker:
         fig.show()
 
 
+    else: #IF TICKER NOT FOUND ON API
 
-    else:
-        #print("-------------------------")
-        #print(f"There was an API error with your attempt to pull data for the ticker {tkr}.")
-        #print("-------------------------")
         if error_check == "Error Message":
             failed_tickers.append({'ticker': tkr, 'err_type': 'Invalid API Call'})
+
         elif error_check == "Note":
             failed_tickers.append({'ticker': tkr, 'err_type': 'Exceeds API Call Limit (5 per minute and 500 per day)'})
+
         else:
             failed_tickers.append({'ticker': tkr, 'err_type': 'Other'})
 
-
+# ERROR SUMMARY -----------------------------------------------------------------
 if len(failed_tickers) > 0:
     if len(failed_tickers) == len(input_ticker):
         print("-------------------------")
@@ -372,11 +329,10 @@ if len(failed_tickers) > 0:
     for t in failed_tickers:
         print(f"----{t['ticker']}: {t['err_type']}")
     print("Please check the accuracy of the ticker(s) and try again.")
-    if max(spchk) > -1:
-        print("Note: spaces found in ticker inputs are automatically removed")
+    if len(spchk) > 0:
+        if max(spchk) > -1:
+            print("Note: spaces found in ticker inputs are automatically removed")
 
 print("-------------------------")
 print("HAPPY INVESTING!")
 print("-------------------------")
-
-#TODO: "Nothing to request" if no tickers provided.
