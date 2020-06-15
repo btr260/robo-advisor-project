@@ -291,8 +291,12 @@ for tkr in input_ticker:
         cht_low = [p['low'] for p in sorted_chart_data]
         #print(cht_timestamp)
 
+        anno = [dict(x=last_ref_dt, y=px_last, xref='x', yref='y', text=f"Last Close: {to_usd(float(px_last))}", showarrow=True, arrowhead=7, ax=0, ay=-80),
+                dict(x=last_ref_dt, y=px_last, xref='x', yref='y', text=f"Last Close: {to_usd(float(px_last))}", showarrow=True, arrowhead=7, ax=0, ay=-80)]
+        print(anno)
         fig = go.Figure(data=[go.Candlestick(
-            x=cht_timestamp, open=cht_open, high=cht_high, low=cht_low, close=cht_close)])
+            x=cht_timestamp, open=cht_open, high=cht_high, low=cht_low, close=cht_close)],
+                layout=go.Layout(title=go.layout.Title(text=f"{symbol}"),annotations=anno))
         fig.show()
 
 
